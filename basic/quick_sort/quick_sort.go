@@ -13,9 +13,45 @@ func main() {
 	//a := []int{5, 7, 6}
 	fmt.Println(a)
 
-	QuickSort(a, 0, len(a)-1)
+	//QuickSort(a, 0, len(a)-1)
 
 	fmt.Println(a)
+
+	fmt.Println("top 3", TopK(a, 3))
+}
+
+//Quick3Way 3-way quick sort
+
+// [ ? ? ? ? ? ? ?]
+//   lt          gt
+//   i
+
+// [lo ~ lt-1] < v
+// [lt ~ gt] = v
+// [gt+1 ~ hi] > v
+
+func Quick3Way(a []int, lo, hi int) {
+
+}
+
+// TopK select the k-th min value
+func TopK(a []int, k int) int {
+	if k > len(a) || k < 1 {
+		panic("invalid k")
+	}
+
+	lo, hi := 0, len(a)-1
+	for lo < hi {
+		midIdx := partition(a, lo, hi)
+		if midIdx < k {
+			lo = midIdx + 1
+		} else if midIdx > k {
+			hi = midIdx - 1
+		} else {
+			return a[k]
+		}
+	}
+	return a[k]
 }
 
 const CUTOFF = 10
