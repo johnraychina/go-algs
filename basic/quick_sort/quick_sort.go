@@ -12,26 +12,42 @@ func main() {
 	})
 	//a := []int{5, 7, 6}
 	fmt.Println(a)
-
 	//QuickSort(a, 0, len(a)-1)
-
+	//Quick3Way(a, 0, len(a)-1)
+	//fmt.Println("top 3", TopK(a, 3))
 	fmt.Println(a)
 
-	fmt.Println("top 3", TopK(a, 3))
+	//println(medianOf3([]int{3, 2, 1}, 0, 1, 2))
 }
 
-//Quick3Way 3-way quick sort
-
-// [ ? ? ? ? ? ? ?]
-//   lt          gt
-//   i
-
-// [lo ~ lt-1] < v
-// [lt ~ gt] = v
-// [gt+1 ~ hi] > v
-
+// Quick3Way 3-way quick sort
 func Quick3Way(a []int, lo, hi int) {
+	if lo >= hi {
+		return
+	}
 
+	//[lo, <=v lt,  =v i, >=v gt, hi]
+	lt, gt := lo, hi
+	i := lt
+	v := a[lo]
+	for i <= gt {
+		// scan i from left to right
+		// compare and swap
+		if a[i] < v {
+			swap(a, i, lt)
+			lt++
+			i++
+		} else if a[i] > v {
+			swap(a, i, gt)
+			gt--
+		} else {
+			i++
+		}
+	}
+
+	// recursive call
+	Quick3Way(a, lo, lt-1)
+	Quick3Way(a, gt+1, hi)
 }
 
 // TopK select the k-th min value
@@ -103,24 +119,22 @@ func InsertionSort(a []int, lo int, hi int) {
 func less(a, b int) bool {
 	return a < b
 }
-func medianOf3(a []int, lo int, i int, hi int) int {
-	if a[lo] < a[hi] {
-		if a[i] < a[lo] {
-			return lo
-		} else if a[i] > a[hi] {
-			return hi
-		} else {
-			return i
-		}
-	} else {
-		if a[i] > a[lo] {
-			return lo
-		} else if a[i] < a[hi] {
-			return hi
-		} else {
-			return i
-		}
+
+func idxOfMax(a []int, x, y int) int {
+	if a[x] > a[y] {
+		return x
 	}
+	return y
+}
+func idxOfMin(a []int, x, y int) int {
+	if a[x] < a[y] {
+		return x
+	}
+	return y
+}
+
+func medianOf3(a []int, lo int, i int, hi int) int {
+	return idxOfMax(a, idxOfMin(a, lo, hi), idxOfMin(a, lo, i))
 }
 
 func partition(a []int, lo, hi int) int {
