@@ -6,25 +6,50 @@ import (
 )
 
 func main() {
-	a := []int{1, 2, 3, 4, 4, -1, 5, 6, 7, 7}
-	//a := []int{3, 5, 4}
+	//a := []int{5, 7, 6}
+	a := []int{1, 2, 3, 4, 4, 5, 6, 7, 7, -1}
 	rand.Shuffle(len(a), func(i, j int) {
 		a[i], a[j] = a[j], a[i]
 	})
-	//a := []int{5, 7, 6}
+
 	fmt.Println(a)
 
-	// 靠回忆自己写的，用递归方式做，不但stack深，而且每层stack都要消耗辅助数组，代码丑陋，效率低下
-	NaiveRecursiveMergeSort(a)
-
-	// 《算法4》实现:
-	// 1.top-down递归方式
-	// 2.bottom-up，无递归，采用for循环+一个辅助数组搞定，左右部分对比，分别插入，主数组和辅助数组互换，非常精妙
-	BottomUpMergeSort(a)
+	implType := 2
+	// 1. 靠回忆自己写的，用递归方式做，不但stack深，而且每层stack都要消耗辅助数组，代码丑陋，效率低下
+	// 2.《算法4》top-down递归方式：
+	//      三部曲：算mid, sort left&right, merge
+	//		一个要点：主数组和辅助数组互换
+	// 3. 《算法4》bottom-up，无递归，采用for循环+一个辅助数组搞定，左右部分对比，分别插入，主数组和辅助数组互换，非常精妙
+	switch implType {
+	case 1:
+		NaiveRecursiveMergeSort(a)
+	case 2:
+		TopDownMergeSort(a)
+	case 3:
+		BottomUpMergeSort(a)
+	}
 
 	fmt.Println(a)
 
 	//println(medianOf3([]int{3, 2, 1}, 0, 1, 2))
+}
+
+func TopDownMergeSort(a []int) {
+	aux := make([]int, len(a))
+	topDownMergeSort(a, 0, len(a)-1, aux)
+}
+
+func topDownMergeSort(a []int, lo, hi int, aux []int) {
+	if lo >= hi {
+		return
+	}
+
+	mid := lo + (hi-lo)/2
+	//fmt.Println(lo, hi, mid, a, aux)
+
+	topDownMergeSort(a, lo, mid, aux)
+	topDownMergeSort(a, mid+1, hi, aux)
+	merge(a, lo, mid, hi, aux)
 }
 
 func BottomUpMergeSort(a []int) {
@@ -35,16 +60,17 @@ func BottomUpMergeSort(a []int) {
 
 	for ; size < len(a); size = size * 2 { // size: 1,2,4,6,8
 		for i := lo; i < hi; i = i + size + size { // segment
-			mergeSort(a, i, i+size, min(hi, i+size+size), aux)
+			merge(a, i, i+size, min(hi, i+size+size), aux)
 		}
 		a, aux = aux, a // switch array a with auxiliary array aux
 	}
 }
 
-func mergeSort(a []int, lo, mid, hi int, aux []int) {
-	i, j := lo, mid
+func merge(a []int, lo, mid, hi int, aux []int) {
+	i := lo
+	j := mid + 1
 	for k := lo; k <= hi; k++ {
-		if i >= mid {
+		if i > mid {
 			aux[k] = a[j]
 			j++
 		} else if j > hi {
@@ -57,6 +83,10 @@ func mergeSort(a []int, lo, mid, hi int, aux []int) {
 			aux[k] = a[j]
 			j++
 		}
+	}
+
+	for i := lo; i <= hi; i++ {
+		a[i] = aux[i]
 	}
 }
 
