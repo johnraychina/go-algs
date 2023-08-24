@@ -1,24 +1,8 @@
-package main
+package basic
 
 import (
 	"fmt"
-	"math/rand"
 )
-
-func main() {
-	a := []int{1, 2, 3, 4, 5, 6, 4, 7, 7}
-	rand.Shuffle(len(a), func(i, j int) {
-		a[i], a[j] = a[j], a[i]
-	})
-	//a := []int{5, 7, 6}
-	fmt.Println(a)
-	//QuickSort(a, 0, len(a)-1)
-	//Quick3Way(a, 0, len(a)-1)
-	//fmt.Println("top 3", TopK(a, 3))
-	fmt.Println(a)
-
-	//println(medianOf3([]int{3, 2, 1}, 0, 1, 2))
-}
 
 // Quick3Way 3-way quick sort
 func Quick3Way(a []int, lo, hi int) {
@@ -106,7 +90,7 @@ func InsertionSort(a []int, lo int, hi int) {
 		// find smallest of the rest
 		minIdx := i
 		for j := i + 1; j <= hi; j++ {
-			if less(a[j], a[minIdx]) {
+			if less(a, j, minIdx) {
 				minIdx = j
 			}
 		}
@@ -116,9 +100,9 @@ func InsertionSort(a []int, lo int, hi int) {
 	}
 }
 
-func less(a, b int) bool {
-	return a < b
-}
+//func less(a, b int) bool {
+//	return a < b
+//}
 
 func idxOfMax(a []int, x, y int) int {
 	if a[x] > a[y] {
@@ -175,6 +159,6 @@ func partition(a []int, lo, hi int) int {
 	return right
 }
 
-func swap(a []int, x, y int) {
-	a[x], a[y] = a[y], a[x]
-}
+//func swap(a []int, x, y int) {
+//	a[x], a[y] = a[y], a[x]
+//}

@@ -50,13 +50,3 @@ func sink(a []int, k int, N int) {
 		k = i
 	}
 }
-
-//* Helper functions for comparisons and swaps.
-//* Indices are "off-by-one" to support 1-based indexing.
-func swap(a []int, l int, r int) {
-	a[l], a[r] = a[r], a[l]
-}
-
-func less(a []int, l int, r int) bool {
-	return a[l] < a[r]
-}
