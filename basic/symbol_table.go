@@ -52,29 +52,70 @@ func (b *BinarySearchTree[K, V]) Put(k K, v V) {
 
 	// traverse through the tree
 	x := b.root
-	for x != nil { // 非递归写法，还有一种是递归传TreeNode的写法
-		if k < x.key {
-			if x.left == nil {
-				x.left = &TreeNode[K, V]{key: k, val: v}
-				return
-			}
-			x = x.left
-		} else if k > x.key {
-			if x.right == nil {
-				x.right = &TreeNode[K, V]{key: k, val: v}
-				return
-			}
-			x = x.right
-		} else {
-			x.val = v // equal key, override with the value
-			return
-		}
-	}
+
+	// 递归写法
+	b.root = PutRecursive(x, k, v)
+
+	// 非递归写法
+	//for x != nil {
+	//	if k < x.key {
+	//		if x.left == nil {
+	//			x.left = &TreeNode[K, V]{key: k, val: v}
+	//			return
+	//		}
+	//		x = x.left
+	//	} else if k > x.key {
+	//		if x.right == nil {
+	//			x.right = &TreeNode[K, V]{key: k, val: v}
+	//			return
+	//		}
+	//		x = x.right
+	//	} else {
+	//		x.val = v // equal key, override with the value
+	//		return
+	//	}
+	//}
 }
 
+func PutRecursive[K cmp.Ordered, V any](x *TreeNode[K, V], k K, v V) *TreeNode[K, V] {
+	if x == nil {
+		return &TreeNode[K, V]{key: k, val: v}
+	}
+
+	if k < x.key {
+		x.left = PutRecursive(x.left, k, v)
+	} else if k > x.key {
+		x.right = PutRecursive(x.right, k, v)
+	} else {
+		x.val = v
+	}
+	return x // 避免在本层调用内部对参数重新赋值无效问题，通过返回值在上层重新赋值。
+}
+
+// Delete Hibbard deletion todo
 func (b *BinarySearchTree[K, V]) Delete(k K) {
-	//TODO implement me
-	panic("implement me")
+
+	// 遍历到对应的node，需要冗余记录父节点p.
+	var p *TreeNode[K, V]
+	x := b.root
+	for x != nil {
+		if k < x.key {
+			p = x
+			x = x.left
+		} else if k > x.key {
+			p = x
+			x = x.right
+		} else {
+			// this is it!
+		}
+	}
+
+	// 有子节点，需要重组：长兄为父。
+	// 对应key的node无子节点，比较好删除
+	if x.left != nil && x.right != nil {
+		//todo
+	}
+
 }
 
 func (b *BinarySearchTree[K, V]) Contains(k K) bool {
@@ -100,7 +141,7 @@ func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
 
 	var keys []K
 
-	// bfs todo
+	// bfs
 	queue := NewLinkedQueue[*TreeNode[K, V]]()
 	queue.Enqueue(root)
 	for !queue.IsEmpty() {

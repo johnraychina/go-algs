@@ -5,14 +5,29 @@ import (
 	"testing"
 )
 
-func TestSymbolTable(t *testing.T) {
-
+func TestSymbolTableDelete(t *testing.T) {
 	st := NewBST[string, int]()
-	st.Put("alice", 1)
 	st.Put("bob", 2)
+	st.Put("alice", 1)
 	st.Put("cathy", 3)
 
-	////func TestSymbolTable(t *testing.T) {
+	for _, k := range st.Keys() {
+		fmt.Println(k, ":", st.Get(k))
+	}
+
+	st.Delete("bob")
+	st.Delete("alice")
+	st.Delete("cathy")
+}
+
+func TestSymbolTablePutGet(t *testing.T) {
+
+	st := NewBST[string, int]()
+	st.Put("bob", 2)
+	st.Put("alice", 1)
+	st.Put("cathy", 3)
+
+	////func TestSymbolTablePutGet(t *testing.T) {
 	//scanner := bufio.NewScanner(os.Stdin)
 	//
 	//// scan line by line from standard input
