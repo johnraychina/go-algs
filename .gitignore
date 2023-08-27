@@ -1,0 +1,7 @@
+.idea/.gitignore
+.idea/go-algs.iml
+.idea/kubernetes-settings.xml
+.idea/markdown.xml
+.idea/modules.xml
+.idea/vcs.xml
+basic/go.mod

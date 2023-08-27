@@ -93,30 +93,41 @@ func PutRecursive[K cmp.Ordered, V any](x *TreeNode[K, V], k K, v V) *TreeNode[K
 }
 
 // Delete Hibbard deletion todo
-func (b *BinarySearchTree[K, V]) Delete(k K) {
+// func (b *BinarySearchTree[K, V]) Delete(k K) {
 
-	// 遍历到对应的node，需要冗余记录父节点p.
-	var p *TreeNode[K, V]
-	x := b.root
-	for x != nil {
-		if k < x.key {
-			p = x
-			x = x.left
-		} else if k > x.key {
-			p = x
-			x = x.right
-		} else {
-			// this is it!
-		}
-	}
+// 	// 遍历到对应的node，需要冗余记录父节点p.
+// 	var p *TreeNode[K, V]
+// 	x := b.root
+// 	for x != nil {
+// 		if k < x.key {
+// 			p = x
+// 			x = x.left
+// 		} else if k > x.key {
+// 			p = x
+// 			x = x.right
+// 		} else {
+// 			// this is it!
+// 		}
+// 	}
 
-	// 有子节点，需要重组：长兄为父。
-	// 对应key的node无子节点，比较好删除
-	if x.left != nil && x.right != nil {
-		//todo
-	}
+// 	// 有子节点，需要重组：长兄为父。
+// 	// 对应key的node无子节点，比较好删除
+// 	if x.left != nil && x.right != nil {
+// 		//todo
+// 	}
 
-}
+// }
+
+// DeleteMin
+// func DeleteMin[K cmp.Ordered, V any](node TreeNode[K, V]) *TreeNode[K, V] {
+
+// 	if node.left == nil {
+// 		return node.right
+// 	}
+
+// 	DeleteMin[K, V](*node.left)
+
+// }
 
 func (b *BinarySearchTree[K, V]) Contains(k K) bool {
 	//TODO implement me
@@ -168,18 +179,53 @@ func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
 }
 
 func (b *BinarySearchTree[K, V]) Min() K {
-	//TODO implement me
-	panic("implement me")
+	x := b.root
+
+	// the most left one
+	for x.right != nil {
+		x = x.right
+	}
+	return x.key
 }
 
 func (b *BinarySearchTree[K, V]) Max() K {
-	//TODO implement me
-	panic("implement me")
+	x := b.root
+
+	// the largetst key is the most left one
+	for x.left != nil {
+		x = x.left
+	}
+	return x.key
 }
 
-func (b *BinarySearchTree[K, V]) Floor(k K) K {
-	//TODO implement me
-	panic("implement me")
+func (b *BinarySearchTree[K, V]) Floor(k K) (result K) {
+
+	x := b.root
+	if x == nil {
+		return result
+	}
+
+	x = b.FloorRecursive(x, k)
+	if x == nil {
+		return result
+	}
+	return x.key
+}
+
+func (b *BinarySearchTree[K, V]) FloorRecursive(node *TreeNode[K, V], k K) *TreeNode[K, V] {
+	// largest key <= the given key
+	// 递归实现
+	if k < node.key {
+		return b.FloorRecursive(node.left, k)
+	} else if k == node.key {
+		return node
+	} else {
+		t := b.FloorRecursive(node.right, k)
+		if t != nil {
+			return t
+		}
+		return node
+	}
 }
 
 func (b *BinarySearchTree[K, V]) Ceiling(k K) K {
