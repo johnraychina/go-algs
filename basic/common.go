@@ -14,6 +14,7 @@ type TreeNode[K comparable, V any] struct {
 	val   V
 	left  *TreeNode[K, V]
 	right *TreeNode[K, V]
+	count int
 }
 
 type Node[V any] struct {

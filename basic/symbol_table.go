@@ -9,7 +9,7 @@ type SymbolTable[K cmp.Ordered, V any] interface {
 	Get(K) V
 	Delete(K)
 	Contains(K) bool
-	IsEmpty()
+	IsEmpty() bool
 	Size() int
 	Keys() []K
 
@@ -45,11 +45,6 @@ func (b *BinarySearchTree[K, V]) Get(k K) (v V) {
 }
 
 func (b *BinarySearchTree[K, V]) Put(k K, v V) {
-	if b.root == nil {
-		b.root = &TreeNode[K, V]{key: k, val: v, left: nil, right: nil}
-		return
-	}
-
 	// traverse through the tree
 	x := b.root
 
@@ -79,7 +74,7 @@ func (b *BinarySearchTree[K, V]) Put(k K, v V) {
 
 func PutRecursive[K cmp.Ordered, V any](x *TreeNode[K, V], k K, v V) *TreeNode[K, V] {
 	if x == nil {
-		return &TreeNode[K, V]{key: k, val: v}
+		return &TreeNode[K, V]{key: k, val: v, count: 1}
 	}
 
 	if k < x.key {
@@ -89,59 +84,49 @@ func PutRecursive[K cmp.Ordered, V any](x *TreeNode[K, V], k K, v V) *TreeNode[K
 	} else {
 		x.val = v
 	}
+	x.count = 1 + SizeOf(x.left) + SizeOf(x.right)
 	return x // 避免在本层调用内部对参数重新赋值无效问题，通过返回值在上层重新赋值。
 }
 
 // Delete Hibbard deletion todo
-// func (b *BinarySearchTree[K, V]) Delete(k K) {
+func (b *BinarySearchTree[K, V]) Delete(k K) {
 
-// 	// 遍历到对应的node，需要冗余记录父节点p.
-// 	var p *TreeNode[K, V]
-// 	x := b.root
-// 	for x != nil {
-// 		if k < x.key {
-// 			p = x
-// 			x = x.left
-// 		} else if k > x.key {
-// 			p = x
-// 			x = x.right
-// 		} else {
-// 			// this is it!
-// 		}
-// 	}
+}
 
-// 	// 有子节点，需要重组：长兄为父。
-// 	// 对应key的node无子节点，比较好删除
-// 	if x.left != nil && x.right != nil {
-// 		//todo
-// 	}
+func (b *BinarySearchTree[K, V]) DeleteRecursive(node *TreeNode[K, V], k K) {
 
-// }
+}
 
-// DeleteMin
-// func DeleteMin[K cmp.Ordered, V any](node TreeNode[K, V]) *TreeNode[K, V] {
+func (b *BinarySearchTree[K, V]) DeleteMin(node *TreeNode[K, V]) *TreeNode[K, V] {
 
-// 	if node.left == nil {
-// 		return node.right
-// 	}
+	// 左子树为空，则当前节点为最小节点，删除他，然后返回右子树作为替代。
+	if node.left == nil {
+		return node.right
+	}
 
-// 	DeleteMin[K, V](*node.left)
-
-// }
+	// 左子树不为空，最小节点一定在他下面，删除之，更新指向左子树的链接。
+	node.left = b.DeleteMin[K, V](node.left)
+	return node
+}
 
 func (b *BinarySearchTree[K, V]) Contains(k K) bool {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b *BinarySearchTree[K, V]) IsEmpty() {
-	//TODO implement me
-	panic("implement me")
+func (b *BinarySearchTree[K, V]) IsEmpty() bool {
+	return b.Size() > 0
 }
 
 func (b *BinarySearchTree[K, V]) Size() int {
-	//TODO implement me
-	panic("implement me")
+	return SizeOf(b.root)
+}
+
+func SizeOf[K cmp.Ordered, V any](x *TreeNode[K, V]) int {
+	if x == nil {
+		return 0
+	}
+	return x.count
 }
 
 func (b *BinarySearchTree[K, V]) Keys() (keys []K) {
@@ -157,11 +142,11 @@ func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
 	queue.Enqueue(root)
 	for !queue.IsEmpty() {
 		node := queue.Dequeue()
-		keys = append(keys, node.key)
 
 		if node.left != nil {
 			queue.Enqueue(node.left)
 		}
+		keys = append(keys, node.key)
 		if node.right != nil {
 			queue.Enqueue(node.right)
 		}
@@ -171,8 +156,8 @@ func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
 	//if x == nil {
 	//	return
 	//}
-	//keys = append(keys, x.key)
 	//keys = append(keys, b.collectKey(x.left)...)
+	//keys = append(keys, x.key)
 	//keys = append(keys, b.collectKey(x.right)...)
 
 	return keys
@@ -191,7 +176,7 @@ func (b *BinarySearchTree[K, V]) Min() K {
 func (b *BinarySearchTree[K, V]) Max() K {
 	x := b.root
 
-	// the largetst key is the most left one
+	// the largest key is the most left one
 	for x.left != nil {
 		x = x.left
 	}
@@ -212,6 +197,13 @@ func (b *BinarySearchTree[K, V]) Floor(k K) (result K) {
 	return x.key
 }
 
+// FloorRecursive find the largest key <= the given key
+// 1. node key > the given key, the floor must in the left subtree.
+// 2. node key < the given key, the floor could be in the right subtree(or the node key)
+// 想要找到左边界：
+// 1. 当前节点值较小，一定是向左子树找。
+// 2. 相等，直接return
+// 3. 当前节点较小，可能就是当前节点或者右子树。
 func (b *BinarySearchTree[K, V]) FloorRecursive(node *TreeNode[K, V], k K) *TreeNode[K, V] {
 	// largest key <= the given key
 	// 递归实现
@@ -228,14 +220,56 @@ func (b *BinarySearchTree[K, V]) FloorRecursive(node *TreeNode[K, V], k K) *Tree
 	}
 }
 
-func (b *BinarySearchTree[K, V]) Ceiling(k K) K {
-	//TODO implement me
-	panic("implement me")
+// Ceiling Smallest key ≥ a given key.
+func (b *BinarySearchTree[K, V]) Ceiling(k K) (result K) {
+	x := b.root
+	if x == nil {
+		return result
+	}
+
+	x = b.CeilingRecursive(x, k)
+	if x == nil {
+		return result
+	}
+	return x.key
+}
+
+// CeilingRecursive
+// 想要找右边界（比给定key值大的最小值）
+// 1. 当前node节点较小，一定找右子树。
+// 2. 相等，直接return
+// 3. 当前node节点较大，可能就是当前节点，或者左子树。
+func (b *BinarySearchTree[K, V]) CeilingRecursive(node *TreeNode[K, V], k K) *TreeNode[K, V] {
+
+	if k > node.key {
+		return b.CeilingRecursive(node.right, k)
+	} else if k == node.key {
+		return node
+	} else {
+		t := b.CeilingRecursive(node.left, k)
+		if t != nil {
+			return t
+		}
+		return node
+	}
 }
 
 func (b *BinarySearchTree[K, V]) Rank(k K) int {
-	//TODO implement me
-	panic("implement me")
+	return RankOf(b.root, k)
+}
+
+func RankOf[K cmp.Ordered, V any](node *TreeNode[K, V], k K) int {
+	if node == nil {
+		return 0
+	}
+
+	if k < node.key {
+		return RankOf(node.left, k)
+	} else if k == node.key {
+		return SizeOf(node)
+	} else {
+		return SizeOf(node.left) + 1 + RankOf(node.right, k)
+	}
 }
 
 func (b *BinarySearchTree[K, V]) Select(i int) K {
