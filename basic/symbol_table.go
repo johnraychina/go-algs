@@ -8,6 +8,7 @@ type SymbolTable[K cmp.Ordered, V any] interface {
 	Put(K, V)
 	Get(K) V
 	Delete(K)
+	DeleteMin()
 	Contains(K) bool
 	IsEmpty() bool
 	Size() int
@@ -22,11 +23,11 @@ type SymbolTable[K cmp.Ordered, V any] interface {
 	KeysOfRange(lo, hi int) int // keys in [lo...hi] in sorted order
 }
 
-func NewBST[K cmp.Ordered, V any]() SymbolTable[K, V] {
+func NewBST[K cmp.Ordered, V comparable]() SymbolTable[K, V] {
 	return &BinarySearchTree[K, V]{}
 }
 
-type BinarySearchTree[K cmp.Ordered, V any] struct {
+type BinarySearchTree[K cmp.Ordered, V comparable] struct {
 	root *TreeNode[K, V]
 }
 
@@ -88,16 +89,64 @@ func PutRecursive[K cmp.Ordered, V any](x *TreeNode[K, V], k K, v V) *TreeNode[K
 	return x // 避免在本层调用内部对参数重新赋值无效问题，通过返回值在上层重新赋值。
 }
 
-// Delete Hibbard deletion todo
+// Delete Hibbard deletion
 func (b *BinarySearchTree[K, V]) Delete(k K) {
-
+	if !b.Contains(k) {
+		panic("No such a key")
+	}
+	b.root = DeleteRecursive(b.root, k)
 }
 
-func (b *BinarySearchTree[K, V]) DeleteRecursive(node *TreeNode[K, V], k K) {
+// DeleteRecursive 删除树下对应键值的节点，可能当前树的根节点会发生变化，返回变化后的node。
+func DeleteRecursive[K cmp.Ordered, V any](node *TreeNode[K, V], k K) *TreeNode[K, V] {
+	if node == nil {
+		return nil
+	}
 
+	if k > node.key { // 搜索key的过程本质上和Get是一样的
+		node.right = DeleteRecursive(node.right, k)
+	} else if k < node.key {
+		node.left = DeleteRecursive(node.left, k)
+	} else { // 找到对应键值的节点
+		// case 0: 无子树
+		if node.left == nil && node.right == nil {
+			return nil
+		}
+		// case 1: 有一个子树
+		if node.left == nil && node.right != nil {
+			return node.right
+		}
+		if node.left != nil && node.right == nil {
+			return node.left
+		}
+
+		// case 2: 有两个子树，选取min(node.right) 或者max(node.left)作为当前node的替代节点。
+		// 巧妙的是，由于树是中序inorder，这样选取的继任节点是不可能有子树的，直接使用即可。
+		successor := MinNode(node.right)
+		// 将 successor 提升为继任者
+		successor.right = DeleteMinOf(node.right)
+		successor.left = node.left
+		return successor
+	}
+
+	return node
 }
 
-func (b *BinarySearchTree[K, V]) DeleteMin(node *TreeNode[K, V]) *TreeNode[K, V] {
+func MinNode[K cmp.Ordered, V any](node *TreeNode[K, V]) *TreeNode[K, V] {
+	if node.left != nil {
+		return MinNode(node.left)
+	}
+	return node
+}
+
+func (b *BinarySearchTree[K, V]) DeleteMin() {
+	if b.root == nil {
+		panic("empty tree")
+	}
+	b.root = DeleteMinOf(b.root)
+}
+
+func DeleteMinOf[K cmp.Ordered, V any](node *TreeNode[K, V]) *TreeNode[K, V] {
 
 	// 左子树为空，则当前节点为最小节点，删除他，然后返回右子树作为替代。
 	if node.left == nil {
@@ -105,13 +154,15 @@ func (b *BinarySearchTree[K, V]) DeleteMin(node *TreeNode[K, V]) *TreeNode[K, V]
 	}
 
 	// 左子树不为空，最小节点一定在他下面，删除之，更新指向左子树的链接。
-	node.left = b.DeleteMin[K, V](node.left)
+	node.left = DeleteMinOf(node.left)
+	node.count -= 1 //todo 分析一下，可以用这种简单方法吗？
+	//node.count = 1 + SizeOf(node.left) + SizeOf(node.right)
 	return node
 }
 
 func (b *BinarySearchTree[K, V]) Contains(k K) bool {
-	//TODO implement me
-	panic("implement me")
+	var zeroValue V
+	return b.Get(k) != zeroValue
 }
 
 func (b *BinarySearchTree[K, V]) IsEmpty() bool {
@@ -133,13 +184,16 @@ func (b *BinarySearchTree[K, V]) Keys() (keys []K) {
 	return b.collectKey(b.root)
 }
 
-func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
+func (b *BinarySearchTree[K, V]) collectKey(node *TreeNode[K, V]) []K {
 
 	var keys []K
+	if node == nil {
+		return keys
+	}
 
 	// bfs
 	queue := NewLinkedQueue[*TreeNode[K, V]]()
-	queue.Enqueue(root)
+	queue.Enqueue(node)
 	for !queue.IsEmpty() {
 		node := queue.Dequeue()
 
@@ -165,20 +219,26 @@ func (b *BinarySearchTree[K, V]) collectKey(root *TreeNode[K, V]) []K {
 
 func (b *BinarySearchTree[K, V]) Min() K {
 	x := b.root
+	if x == nil {
+		panic("empty tree")
+	}
 
 	// the most left one
-	for x.right != nil {
-		x = x.right
+	for x.left != nil {
+		x = x.left
 	}
 	return x.key
 }
 
 func (b *BinarySearchTree[K, V]) Max() K {
 	x := b.root
+	if x == nil {
+		panic("empty tree")
+	}
 
 	// the largest key is the most left one
-	for x.left != nil {
-		x = x.left
+	for x.right != nil {
+		x = x.right
 	}
 	return x.key
 }
@@ -187,7 +247,7 @@ func (b *BinarySearchTree[K, V]) Floor(k K) (result K) {
 
 	x := b.root
 	if x == nil {
-		return result
+		panic("empty tree")
 	}
 
 	x = b.FloorRecursive(x, k)
@@ -205,6 +265,9 @@ func (b *BinarySearchTree[K, V]) Floor(k K) (result K) {
 // 2. 相等，直接return
 // 3. 当前节点较小，可能就是当前节点或者右子树。
 func (b *BinarySearchTree[K, V]) FloorRecursive(node *TreeNode[K, V], k K) *TreeNode[K, V] {
+	if node == nil {
+		return nil
+	}
 	// largest key <= the given key
 	// 递归实现
 	if k < node.key {
@@ -224,7 +287,7 @@ func (b *BinarySearchTree[K, V]) FloorRecursive(node *TreeNode[K, V], k K) *Tree
 func (b *BinarySearchTree[K, V]) Ceiling(k K) (result K) {
 	x := b.root
 	if x == nil {
-		return result
+		panic("empty tree")
 	}
 
 	x = b.CeilingRecursive(x, k)
@@ -240,6 +303,9 @@ func (b *BinarySearchTree[K, V]) Ceiling(k K) (result K) {
 // 2. 相等，直接return
 // 3. 当前node节点较大，可能就是当前节点，或者左子树。
 func (b *BinarySearchTree[K, V]) CeilingRecursive(node *TreeNode[K, V], k K) *TreeNode[K, V] {
+	if node == nil {
+		return nil
+	}
 
 	if k > node.key {
 		return b.CeilingRecursive(node.right, k)
@@ -255,6 +321,9 @@ func (b *BinarySearchTree[K, V]) CeilingRecursive(node *TreeNode[K, V], k K) *Tr
 }
 
 func (b *BinarySearchTree[K, V]) Rank(k K) int {
+	if b.root == nil {
+		panic("empty tree")
+	}
 	return RankOf(b.root, k)
 }
 

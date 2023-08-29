@@ -5,6 +5,63 @@ import (
 	"testing"
 )
 
+func TestSymbolTableSize(t *testing.T) {
+
+}
+
+func TestDeleteKey(t *testing.T) {
+	st := NewBST[string, int]()
+	st.Put("bob", 2)
+	st.Put("alice", 1)
+	st.Put("cathy", 3)
+	st.Put("david", 4)
+
+	fmt.Println(st.Keys())
+	st.Delete("cathy")
+	fmt.Println(st.Keys())
+	st.Delete("david")
+	fmt.Println(st.Keys())
+	st.Delete("john")
+	fmt.Println(st.Keys())
+}
+
+func TestDeleteMin(t *testing.T) {
+	st := NewBST[string, int]()
+	st.Put("bob", 2)
+	st.Put("alice", 1)
+	st.Put("cathy", 3)
+	st.Put("david", 4)
+
+	fmt.Println(st.Min(), ":", st.Get(st.Min()))
+	st.DeleteMin()
+	fmt.Println(st.Min(), ":", st.Get(st.Min()))
+	st.DeleteMin()
+	fmt.Println(st.Min(), ":", st.Get(st.Min()))
+	st.DeleteMin()
+	fmt.Println(st.Min(), ":", st.Get(st.Min()))
+	st.DeleteMin()
+	fmt.Println(st.Min(), ":", st.Get(st.Min()))
+}
+
+func TestSymbolTableFloorCeilingRank(t *testing.T) {
+
+	st := NewBST[string, int]()
+	st.Put("bob", 2)
+	st.Put("alice", 1)
+	st.Put("cathy", 3)
+	st.Put("david", 4)
+
+	key := "aa"
+	fmt.Printf("key:%s, floor: %s, ceiling: %s, rank: %d \n", key, st.Floor(key), st.Ceiling(key), st.Rank(key))
+	key = "bb"
+	fmt.Printf("key:%s, floor: %s, ceiling: %s, rank: %d \n", key, st.Floor(key), st.Ceiling(key), st.Rank(key))
+	key = "cc"
+	fmt.Printf("key:%s, floor: %s, ceiling: %s, rank: %d \n", key, st.Floor(key), st.Ceiling(key), st.Rank(key))
+	key = "dd"
+	fmt.Printf("key:%s, floor: %s, ceiling: %s, rank: %d \n", key, st.Floor(key), st.Ceiling(key), st.Rank(key))
+
+}
+
 func TestSymbolTableDelete(t *testing.T) {
 	st := NewBST[string, int]()
 	st.Put("bob", 2)
