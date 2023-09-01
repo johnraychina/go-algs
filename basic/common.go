@@ -9,6 +9,14 @@ func less(a []int, l int, r int) bool {
 	return a[l] < a[r]
 }
 
+type RBTreeNode[K comparable, V any] struct {
+	key   K
+	val   V
+	left  *RBTreeNode[K, V]
+	right *RBTreeNode[K, V]
+	red   bool // color of parent link
+}
+
 type TreeNode[K comparable, V any] struct {
 	key   K
 	val   V
