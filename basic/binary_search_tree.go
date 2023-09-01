@@ -20,7 +20,7 @@ type SymbolTable[K cmp.Ordered, V any] interface {
 	Ceiling(K) K                // smallest key greater than or equal to the key
 	Rank(K) int                 // number of keys less than the key
 	Select(int) K               // key of rank
-	KeysOfRange(lo, hi int) int // keys in [lo...hi] in sorted order
+	KeysOfRange(lo, hi int) []K // keys in [lo...hi] in sorted order
 }
 
 func NewBST[K cmp.Ordered, V comparable]() SymbolTable[K, V] {
@@ -155,8 +155,7 @@ func DeleteMinOf[K cmp.Ordered, V any](node *TreeNode[K, V]) *TreeNode[K, V] {
 
 	// 左子树不为空，最小节点一定在他下面，删除之，更新指向左子树的链接。
 	node.left = DeleteMinOf(node.left)
-	node.count -= 1 //todo 分析一下，可以用这种简单方法吗？
-	//node.count = 1 + SizeOf(node.left) + SizeOf(node.right)
+	node.count = 1 + SizeOf(node.left) + SizeOf(node.right)
 	return node
 }
 
@@ -178,6 +177,41 @@ func SizeOf[K cmp.Ordered, V any](x *TreeNode[K, V]) int {
 		return 0
 	}
 	return x.count
+}
+
+func (b *BinarySearchTree[K, V]) KeysOfRange(lo, hi int) (keys []K) {
+	// in-order traversal the tree, and collect the keys in the range [lo, hi]
+	
+	x := b.root
+	if x == nil {
+		return keys
+	}
+
+	lowKey := b.Select(lo)
+	highKey := b.Select(hi)
+	
+	keys = append(keys, b.KeysOfRangeRecursive(x, lowKey, highKey)...)
+	return keys
+}
+
+func (b *BinarySearchTree[K,V]) KeysOfRangeRecursive(node *TreeNode[K,V], lowKey, hiKey K) []K {
+	var keys []K
+	if node == nil {
+		return keys
+	}
+
+	// dfs
+	if lowKey < node.key {
+		keys = append(keys, b.KeysOfRangeRecursive(node.left, lowKey, hiKey)...)
+	}
+	if lowKey <= node.key && node.key <= hiKey {
+		keys = append(keys, node.key)
+	}
+	if hiKey > node.key {
+		keys = append(keys, b.KeysOfRangeRecursive(node.right, lowKey, hiKey)...)
+	}
+
+	return keys
 }
 
 func (b *BinarySearchTree[K, V]) Keys() (keys []K) {
@@ -342,11 +376,30 @@ func RankOf[K cmp.Ordered, V any](node *TreeNode[K, V], k K) int {
 }
 
 func (b *BinarySearchTree[K, V]) Select(i int) K {
-	//TODO implement me
-	panic("implement me")
+	
+	// select the i-th smallest key
+	if b.root == nil {
+		panic("empty tree")
+	}
+
+	if i > b.Size() || i < 0 {
+		panic("rank out of range")
+	}
+	
+	return selectOf(b.root, i).key
 }
 
-func (b *BinarySearchTree[K, V]) KeysOfRange(lo, hi int) int {
-	//TODO implement me
-	panic("implement me")
+func selectOf[K cmp.Ordered, V any](node *TreeNode[K, V], i int) *TreeNode[K, V] {
+	if node == nil {
+		return nil
+	}
+
+	t := SizeOf(node.left)
+	if t > i {
+		return selectOf(node.left, i)
+	} else if t < i {
+		return selectOf(node.right, i-t-1)
+	} else {
+		return node
+	}
 }

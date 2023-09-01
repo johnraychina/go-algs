@@ -9,6 +9,31 @@ func TestSymbolTableSize(t *testing.T) {
 
 }
 
+func TestKeysOfRange(t *testing.T) {
+	st := NewBST[string, int]()
+	st.Put("alice", 0)
+	st.Put("bob", 1)
+	st.Put("cathy", 3)
+	st.Put("david", 2)
+
+	fmt.Println(st.KeysOfRange(0, 0))
+	fmt.Println(st.KeysOfRange(1, 2))
+	fmt.Println(st.KeysOfRange(3, 3))
+}
+
+
+func TestSelect(t *testing.T) {
+	st := NewBST[string, int]()
+	st.Put("cathy", 3)
+	st.Put("david", 4)
+	st.Put("alice", 1)
+	st.Put("bob", 2)
+
+	for i := 0; i < st.Size(); i++ {
+		fmt.Println(st.Select(i))
+	}
+}
+
 func TestDeleteKey(t *testing.T) {
 	st := NewBST[string, int]()
 	st.Put("bob", 2)
