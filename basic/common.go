@@ -30,3 +30,17 @@ type Node[V any] struct {
 	prev *Node[V]
 	next *Node[V]
 }
+
+type HashNode[K Hash, V any] struct {
+	key  K
+	val  V
+	next *HashNode[K, V]
+}
+
+func NearestPowerOfTwo(c uint) uint {
+	x := uint(1)
+	for i := 1; x+1 < c; i = i * 2 {
+		x = x | x<<i
+	}
+	return x
+}
