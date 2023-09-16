@@ -74,12 +74,16 @@ func (g *UndirectedGraph) V() int {
 }
 
 func (g *UndirectedGraph) E() int {
-	panic("implement me")
+	cnt := 0
+	for _, m := range g.adj {
+		cnt += len(m)
+	}
+	return cnt
 }
 
 func (g *UndirectedGraph) Degree(v int) int {
 	g.validateVertex(v)
-	return len(g.adjOf(v))
+	return len(g.AdjOf(v))
 }
 
 type Paths interface {
@@ -101,19 +105,47 @@ type DepthFirstPaths struct {
 	// 还有一种简单的办法，就是bottom-up反着来！以目标点为索引下标，存储它的前序节点。
 	edgeTo []int
 
-	//boolean[] marked to mark visited vertices. ・ int[] edgeTo to keep tree of paths.
-	//(edgeTo[w] == v) means that edge v-w taken to visit w for first time
+	marked []bool //to mark visited vertices
 }
 
-func DepthFirstPathsOf(g *Graph, source int) *DepthFirstPaths {
-	//todo
-	return nil
+func DepthFirstPathsOf(g Graph, source int) *DepthFirstPaths {
+	edgeTo := make([]int, g.V())
+	marked := make([]bool, g.V())
+	paths := &DepthFirstPaths{s: source, edgeTo: edgeTo, marked: marked}
+	paths.dfs(g, source)
+	return paths
 }
 
-func (p *DepthFirstPaths) HasPathTo(v int) bool {
-
+func (p *DepthFirstPaths) dfs(g Graph, v int) {
+	p.marked[v] = true
+	for w := range g.AdjOf(v) {
+		if !p.marked[w] {
+			p.edgeTo[w] = v // 保存前序（父节点）
+			p.dfs(g, w)
+		}
+	}
 }
 
-func (p *DepthFirstPaths) PathTo(v int) []int {
+func (p *DepthFirstPaths) HasPathTo(w int) bool {
+	return p.marked[w]
+}
 
+func (p *DepthFirstPaths) PathTo(w int) []int {
+	if !p.HasPathTo(w) {
+		return []int{}
+	}
+
+	var path []int
+	for w != p.s {
+		path = append(path, w)
+		w = p.edgeTo[w]
+	}
+	path = append(path)
+
+	// 由于edgeTo保存的的是父节点，会从w遍历到s, 我们想要返回s->w，需要调换顺序。
+	l := len(path)
+	for i := 0; i < l/2; i++ {
+		path[i], path[l-1-i] = path[l-1-i], path[i]
+	}
+	return path
 }

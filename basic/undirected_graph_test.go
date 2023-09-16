@@ -8,23 +8,33 @@ import (
 func TestGraph(t *testing.T) {
 	//g := NewGraphFromFile(file)
 
-	g := NewGraph(13)
-	g.addEdge(0, 1)
-	g.addEdge(0, 2)
-	g.addEdge(1, 2)
-	g.addEdge(2, 3)
+	g := NewUndirectedGraph(13)
+	g.AddEdge(0, 1)
+	g.AddEdge(0, 2)
+	g.AddEdge(1, 2)
+	g.AddEdge(2, 3)
 
-	g.adjOf(0)
-	g.degree()
+	g.AdjOf(0)
+	g.Degree(0)
 }
 
 func TestPathsOf(t *testing.T) {
 
-	g := NewGraphFromFile(file)
-	paths := PathsOf(g, 0)
+	g := NewUndirectedGraph(6)
+	g.AddEdge(0, 1)
+	g.AddEdge(0, 2)
+	g.AddEdge(1, 2)
+	g.AddEdge(2, 3)
+	g.AddEdge(3, 4)
+	g.AddEdge(3, 5)
+	g.AddEdge(0, 5)
+
+	paths := DepthFirstPathsOf(g, 0)
+	fmt.Println("EdgeTo[]")
+	for i, v := range paths.edgeTo {
+		fmt.Printf("%d|%d\n", i, v)
+	}
 	for i := 0; i < g.V(); i++ {
-		if paths.hasPathTo(i) {
-			fmt.Println(i)
-		}
+		fmt.Println("path from 0 to ", i, " is:", paths.PathTo(i))
 	}
 }
