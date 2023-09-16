@@ -59,3 +59,25 @@ func TestBFS(t *testing.T) {
 		fmt.Println("path from 0 to ", i, " is:", paths.PathTo(i))
 	}
 }
+
+func TestConnectedComponent(t *testing.T) {
+
+	g := NewUndirectedGraph(10)
+	g.AddEdge(0, 1)
+	g.AddEdge(0, 2)
+	g.AddEdge(1, 2)
+	g.AddEdge(2, 3)
+	g.AddEdge(3, 4)
+	g.AddEdge(3, 5)
+	g.AddEdge(0, 5)
+
+	g.AddEdge(6, 7)
+	g.AddEdge(6, 8)
+
+	cc := NewConnectedComponent(g)
+	fmt.Println("count:", cc.count)
+	fmt.Println("Id[v]")
+	for v, cId := range cc.id {
+		fmt.Printf("%d|%d\n", v, cId)
+	}
+}

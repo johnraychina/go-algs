@@ -202,3 +202,61 @@ func bfs(g Graph, s int) *BreadFirstPaths {
 
 	return paths
 }
+
+// CC connected components 连通图，目的：对图做预处理，用于判断常数时间内两个节点是否连通。
+// 预处理：从一个节点开始遍历，做遍历，得到marked.
+// 那些有没标记的(marked[v]=false)，说明他们在另外连通图。把没标记的再拿去继续遍历，如此迭代，直到所有节点都被标记。
+// Union-Find?  DFS?
+type CC struct {
+	marked []bool
+	id     []int // id[v] = id of component containing v
+	count  int   // number of components
+}
+
+func NewConnectedComponent(g Graph) *CC {
+	cc := &CC{}
+	cc.marked = make([]bool, g.V())
+	cc.id = make([]int, g.V())
+
+	for v := 0; v < g.V(); v++ {
+		if !cc.marked[v] {
+			cc.dfs(g, v)
+			cc.count++
+		}
+	}
+
+	return cc
+}
+
+func (c *CC) dfs(g Graph, v int) {
+	c.marked[v] = true
+	c.id[v] = c.count // 连通子图编号
+	for w := range g.AdjOf(v) {
+		if !c.marked[w] {
+			c.dfs(g, w)
+		}
+	}
+}
+
+func (c *CC) Connected(v, w int) bool {
+	c.validate(v)
+	c.validate(w)
+	return c.id[v] == c.id[w]
+}
+
+// Count number of connected components
+func (c *CC) Count() int {
+	return c.count
+}
+
+// Id component identifier for vertex v
+func (c *CC) Id(v int) int {
+	c.validate(v)
+	return c.id[v]
+}
+
+func (c *CC) validate(v int) {
+	if v < 0 || v >= len(c.marked) {
+		panic("vertex out of bounds")
+	}
+}
