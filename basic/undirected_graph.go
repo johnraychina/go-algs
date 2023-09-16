@@ -130,17 +130,16 @@ func (p *DepthFirstPaths) HasPathTo(w int) bool {
 	return p.marked[w]
 }
 
-func (p *DepthFirstPaths) PathTo(w int) []int {
+func (p *DepthFirstPaths) PathTo(w int) (path []int) {
 	if !p.HasPathTo(w) {
-		return []int{}
+		return path
 	}
 
-	var path []int
 	for w != p.s {
 		path = append(path, w)
 		w = p.edgeTo[w]
 	}
-	path = append(path)
+	path = append(path, p.s)
 
 	// 由于edgeTo保存的的是父节点，会从w遍历到s, 我们想要返回s->w，需要调换顺序。
 	l := len(path)
@@ -148,4 +147,58 @@ func (p *DepthFirstPaths) PathTo(w int) []int {
 		path[i], path[l-1-i] = path[l-1-i], path[i]
 	}
 	return path
+}
+
+type BreadFirstPaths struct {
+	Paths
+	s      int // source vertex
+	marked []bool
+	edgeTo []int // parent links, keep the tree of the paths.
+}
+
+func (p *BreadFirstPaths) HasPathTo(w int) bool {
+	return p.marked[w]
+}
+
+func (p *BreadFirstPaths) PathTo(w int) (path []int) {
+	if !p.HasPathTo(w) {
+		return path
+	}
+
+	// 自底向上遍历edgeTo得到出发点s的路径
+	for p.edgeTo[w] != p.s {
+		path = append(path, w)
+		w = p.edgeTo[w]
+	}
+	path = append(path, p.s)
+
+	return path
+}
+
+func BreadthFirstPathsOf(g Graph, s int) *BreadFirstPaths {
+	return bfs(g, s)
+}
+
+func bfs(g Graph, s int) *BreadFirstPaths {
+	// 广度优先搜索，以queue作为存储，保存一层（一圈）的节点
+	// 这种搜索方式可以理解为把图组织成一个圆， 看成从圆心s开始，向外遍历，每次遍历一圈（一层）节点
+	// 或者把图想象为一张渔网，你把渔网的一个结拎起来，从上到下逐层遍历节点。
+	marked := make([]bool, g.V())
+	edgeTo := make([]int, g.V())
+	paths := &BreadFirstPaths{marked: marked, edgeTo: edgeTo}
+
+	queue := NewLinkedQueue[int]()
+	queue.Enqueue(s) // s 起始节点
+	for !queue.IsEmpty() {
+		v := queue.Dequeue()
+		for w := range g.AdjOf(v) {
+			if !paths.marked[w] {
+				queue.Enqueue(w)
+				marked[w] = true
+				edgeTo[w] = v
+			}
+		}
+	}
+
+	return paths
 }

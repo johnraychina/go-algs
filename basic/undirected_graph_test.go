@@ -38,3 +38,24 @@ func TestPathsOf(t *testing.T) {
 		fmt.Println("path from 0 to ", i, " is:", paths.PathTo(i))
 	}
 }
+
+func TestBFS(t *testing.T) {
+
+	g := NewUndirectedGraph(6)
+	g.AddEdge(0, 1)
+	g.AddEdge(0, 2)
+	g.AddEdge(1, 2)
+	g.AddEdge(2, 3)
+	g.AddEdge(3, 4)
+	g.AddEdge(3, 5)
+	g.AddEdge(0, 5)
+
+	paths := BreadthFirstPathsOf(g, 0)
+	fmt.Println("EdgeTo[]")
+	for i, v := range paths.edgeTo {
+		fmt.Printf("%d|%d\n", i, v)
+	}
+	for i := 0; i < g.V(); i++ {
+		fmt.Println("path from 0 to ", i, " is:", paths.PathTo(i))
+	}
+}
