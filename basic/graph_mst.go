@@ -1,7 +1,10 @@
 package basic
 
 // Minimum Spanning Tree 最小生成树，应用场景包括：
-//・Dithering.
+//・Dithering. see https://en.wikipedia.org/wiki/Dither
+// 例如Floyd–Steinberg dithering 抖动算法
+// 抖动是一种有意应用的噪声形式，用于随机化量化误差，防止出现大规模图案，例如图像中的色带。抖动通常用于数字音频和视频数据的处理。
+// 抖动的常见用途是将灰度图像转换为黑白图像，使得新图像中黑点的密度接近原始图像中的平均灰度级。
 //・Cluster analysis. 聚簇分析
 //・Max bottleneck paths. 最大瓶颈路径
 //・Real-time face verification. 实时人脸验证
@@ -20,3 +23,8 @@ package basic
 //Def. A cut in a graph is a partition of its vertices into two (nonempty) sets.
 //Def. A crossing edge connects a vertex in one set with a vertex in the other.
 //Cut property. Given any cut, the crossing edge of min weight is in the MST.
+
+// Greedy MST algorithm
+// Start with all edges colored gray.
+// Find cut with no black crossing edges; color its min-weighted edge black.
+// Repeat until V-1 eges are colored black.
