@@ -1,7 +1,8 @@
-package basic
+package graph
 
 import (
 	"fmt"
+	"go-algs/basic"
 	"os"
 )
 
@@ -187,7 +188,7 @@ func bfs(g Graph, s int) *BreadFirstPaths {
 	edgeTo := make([]int, g.V())
 	paths := &BreadFirstPaths{marked: marked, edgeTo: edgeTo}
 
-	queue := NewLinkedQueue[int]()
+	queue := basic.NewLinkedQueue[int]()
 	queue.Enqueue(s) // s 起始节点
 	for !queue.IsEmpty() {
 		v := queue.Dequeue()

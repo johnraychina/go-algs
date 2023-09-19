@@ -1,4 +1,4 @@
-package basic
+package graph
 
 // Minimum Spanning Tree 最小生成树，应用场景包括：
 //・Dithering. see https://en.wikipedia.org/wiki/Dither
@@ -27,4 +27,25 @@ package basic
 // Greedy MST algorithm
 // Start with all edges colored gray.
 // Find cut with no black crossing edges; color its min-weighted edge black.
-// Repeat until V-1 eges are colored black.
+// Repeat until V-1 edges are colored black.
+
+// 命题：贪心算法会计算出MST
+// Proposition. The greedy algorithm computes the MST.
+// Any edge colored black is in the MST (via cut property).
+//・Fewer than V - 1 black edges ⇒ cut with no black crossing edges.
+//(consider cut whose vertices are one connected component)
+
+//高效实现：选择cut? 找到最小权重的边?
+//Efficient implementations. Choose cut? Find min-weight edge?
+//Ex 1. Kruskal's algorithm. [stay tuned]
+//Ex 2. Prim's algorithm. [stay tuned]
+//Ex 3. Borüvka's algorithm.
+
+type MST interface {
+	Edges() []*Edge  // all edges of MST
+	Weight() float32 // total weight of MST
+}
+
+func NewMST(g *EdgeWeightedGraph) MST {
+
+}
