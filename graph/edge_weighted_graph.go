@@ -1,5 +1,7 @@
 package graph
 
+import "go-algs/basic"
+
 type EdgeWeightedGraph struct {
 	v   int             // number of vertices
 	adj []map[int]*Edge // adjacent vertices
@@ -45,6 +47,7 @@ func (g *EdgeWeightedGraph) E() int {
 }
 
 type Edge struct {
+	basic.ComparableKey[float32]
 	v      int
 	w      int
 	weight float32
@@ -54,18 +57,20 @@ type Edge struct {
 func NewEdge(v, w int, weight float32) *Edge {
 	return &Edge{v: v, w: w, weight: weight}
 }
-
-func (e Edge) Either() int {
+func (e *Edge) Key() float32 {
+	return e.weight
+}
+func (e *Edge) Either() int {
 	return e.v
 }
-func (e Edge) Other(v int) int {
+func (e *Edge) Other(v int) int {
 	if e.v == v {
 		return e.w
 	}
 	return v
 }
 
-func (e Edge) CompareTo(that Edge) int {
+func (e *Edge) CompareTo(that Edge) int {
 	if e.weight < that.weight {
 		return -1
 	} else if e.weight > that.weight {
@@ -74,6 +79,6 @@ func (e Edge) CompareTo(that Edge) int {
 	return 0
 }
 
-func (e Edge) Weight() float32 {
+func (e *Edge) Weight() float32 {
 	return e.weight
 }

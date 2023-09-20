@@ -8,7 +8,7 @@ func NewMaxPQ() *MaxPQ {
 	return &MaxPQ{a: []int{0}} // a[0]=0 is useless, a[1] is the max item
 }
 
-func (q *MaxPQ) insert(v int) {
+func (q *MaxPQ) Insert(v int) {
 	// append to the last -> swim
 	q.a = append(q.a, v)
 	q.swim(len(q.a) - 1)
@@ -51,7 +51,7 @@ func (q *MaxPQ) isEmpty() bool {
 	return len(q.a) <= 1 // a[0] is useless
 }
 
-func (q *MaxPQ) delMax() int {
+func (q *MaxPQ) DelMax() int {
 	// hold the max value
 	v := q.a[1]
 

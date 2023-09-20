@@ -7,17 +7,17 @@ import (
 
 func TestMaxPQ(t *testing.T) {
 	maxQ := NewMaxPQ()
-	maxQ.insert(2)
-	maxQ.insert(3)
-	maxQ.insert(4)
-	maxQ.insert(3)
-	maxQ.insert(1)
+	maxQ.Insert(2)
+	maxQ.Insert(3)
+	maxQ.Insert(4)
+	maxQ.Insert(3)
+	maxQ.Insert(1)
 
 	fmt.Println(maxQ.a)
 
 	fmt.Println("show max")
 	for !maxQ.isEmpty() {
-		fmt.Println(maxQ.delMax())
+		fmt.Println(maxQ.DelMax())
 	}
 
 }

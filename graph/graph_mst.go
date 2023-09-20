@@ -1,5 +1,7 @@
 package graph
 
+import "go-algs/basic"
+
 // Minimum Spanning Tree 最小生成树，应用场景包括：
 //・Dithering. see https://en.wikipedia.org/wiki/Dither
 // 例如Floyd–Steinberg dithering 抖动算法
@@ -46,11 +48,20 @@ type MST interface {
 	Weight() float32 // total weight of MST
 }
 
+// KruskalMST 最小生成树算法：
 // 把所有的边按权重排序，每次取出最小边构建到树中（除非生成环）
-// Kruskal's algorithm:
 // Sort edges in ascending order of weight.
 // Add next edge to tree T unless doing so would create a cycle
+// 如何高效判断环？
+// 使用Union-Find算法
+// 技术总结：优先级队列MinPQ + 并查集Union-Find
+type KruskalMST struct {
+	mst basic.LinkedQueue[*Edge]
+}
 
 func NewMST(g *EdgeWeightedGraph) MST {
-
+	q := basic.NewMinPQ[*Edge]()
+	for i, edge := range g.Edges() {
+		q.Insert()
+	}
 }

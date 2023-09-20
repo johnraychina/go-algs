@@ -28,12 +28,12 @@ func naiveHeapSort(a []int) {
 	// 全部塞到 maxPQ中，才能取到最大值
 	heap := NewMaxPQ()
 	for _, v := range a {
-		heap.insert(v)
+		heap.Insert(v)
 	}
 
 	// 每次del max 从后往前put到数组，最终数组就是有序的。
 	for i := len(a) - 1; i > 0; i-- {
-		a[i] = heap.delMax()
+		a[i] = heap.DelMax()
 	}
 }
 
