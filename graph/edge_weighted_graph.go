@@ -19,20 +19,29 @@ func (g *EdgeWeightedGraph) AddEdge(edge *Edge) {
 	g.adj[edge.w][edge.v] = edge
 }
 
-func (g *EdgeWeightedGraph) AdjOf(v int) []*Edge {
-
+func (g *EdgeWeightedGraph) AdjOf(v int) map[int]*Edge {
+	return g.adj[v]
 }
 
-func (g *EdgeWeightedGraph) Edges() []*Edge {
-
+func (g *EdgeWeightedGraph) Edges() (edges []*Edge) {
+	for _, m := range g.adj {
+		for _, e := range m {
+			edges = append(edges, e)
+		}
+	}
+	return edges
 }
 
 func (g *EdgeWeightedGraph) V() int {
-
+	return g.v
 }
 
 func (g *EdgeWeightedGraph) E() int {
-
+	edgeCount := 0
+	for _, m := range g.adj {
+		edgeCount += len(m)
+	}
+	return edgeCount
 }
 
 type Edge struct {

@@ -46,6 +46,11 @@ type MST interface {
 	Weight() float32 // total weight of MST
 }
 
+// 把所有的边按权重排序，每次取出最小边构建到树中（除非生成环）
+// Kruskal's algorithm:
+// Sort edges in ascending order of weight.
+// Add next edge to tree T unless doing so would create a cycle
+
 func NewMST(g *EdgeWeightedGraph) MST {
 
 }
