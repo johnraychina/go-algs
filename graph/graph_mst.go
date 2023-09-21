@@ -1,6 +1,8 @@
 package graph
 
-import "go-algs/basic"
+import (
+	"go-algs/basic"
+)
 
 // Minimum Spanning Tree 最小生成树，应用场景包括：
 //・Dithering. see https://en.wikipedia.org/wiki/Dither
@@ -43,23 +45,23 @@ import "go-algs/basic"
 //Ex 2. Prim's algorithm. [stay tuned]
 //Ex 3. Borüvka's algorithm.
 
-type MST interface {
-	Edges() []*Edge  // all edges of MST
-	Weight() float32 // total weight of MST
-}
+//type MST interface {
+//	Edges() []*Edge  // all edges of MST
+//	Weight() float32 // total weight of MST
+//}
 
-type KruskalMST struct {
+type MST struct {
 	mst *basic.LinkedQueue[*Edge]
 }
 
-// NewKruskalMST 最小生成树算法：
+// NewKruskalMST 最小生成树算法，为了形象化记忆，我们叫它“全面开花”，最后连城树。
 // 把所有的边按权重排序，每次取出最小边构建到树中（除非生成环）
 // Sort edges in ascending order of weight.
 // Add next edge to tree T unless doing so would create a cycle
 // 如何高效判断环？
 // 使用Union-Find算法
 // 技术总结：优先级队列MinPQ + 并查集Union-Find
-func NewKruskalMST(g *EdgeWeightedGraph) *KruskalMST {
+func NewKruskalMST(g *EdgeWeightedGraph) *MST {
 	q := basic.NewMinPQ[float32, *Edge]()
 	uf := basic.NewQuickUnionUF(g.V())
 	result := basic.NewLinkedQueue[*Edge]()
@@ -75,5 +77,48 @@ func NewKruskalMST(g *EdgeWeightedGraph) *KruskalMST {
 		}
 	}
 
-	return &KruskalMST{mst: result}
+	return &MST{mst: result}
 }
+
+// NewPrimMST 最小生成树算法，为了形象化记忆，我们把它取名“中心扩散法”。
+// 从顶点的角度来看，先从顶点0开始，然后贪心地构建树T:
+// - 往树T中添加最小边（只有一边顶点在树T中）
+// - 重复，直到 V - 1条边加入.
+// Start with vertex 0 and greedily grow tree T.
+// ・Add to T the min weight edge with exactly one endpoint in T.
+// ・Repeat until V - 1 edges.
+// 技术总结：优先级队列 + marked数组做 广度优先遍历
+func NewPrimMST(g *EdgeWeightedGraph) *MST {
+	mst := basic.NewLinkedQueue[*Edge]()
+	minPQ := basic.NewMinPQ[float32, *Edge]() // 把（只有一边顶点在树T中）”候选“的边排序，方便取最小边
+	marked := make([]bool, g.V())             // 加入树的边，靠近0点的一头顶点
+
+	// 从0开始 循环迭代向扩散， 优先级队列同时起到2个作用：层序遍历 and 排序的工具
+	visit(g, marked, minPQ, 0)
+	for mst.Size() < g.V()-1 && !minPQ.IsEmpty() { // 优先级队列判空也作为一个退出条件，兼容图断开有顶点不可达的情况
+
+		minEdge := minPQ.DelMin()
+		if marked[minEdge.v] && marked[minEdge.w] {
+			continue // ignore the edge if both endpoints in Tree
+		}
+		mst.Enqueue(minEdge)
+		if !marked[minEdge.v] {
+			visit(g, marked, minPQ, minEdge.v) // 加入，并向外探一层
+		} else {
+			visit(g, marked, minPQ, minEdge.w) // 加入，并向外探一层
+		}
+	}
+
+	return &MST{mst: mst}
+}
+
+func visit(g *EdgeWeightedGraph, visited []bool, minPQ *basic.MinPQ[float32, *Edge], v int) {
+	visited[v] = true
+	for u, e := range g.AdjOf(v) {
+		if !visited[u] {
+			minPQ.Insert(e)
+		}
+	}
+}
+
+// todo 关于贪心算法的证明：证明贪心选择的局部会导致整体最优（对于最小生成树MST来说，最优即总权重最小）？

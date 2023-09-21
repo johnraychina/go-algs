@@ -25,6 +25,11 @@ func (q *ArrayQueue[V]) Dequeue() (val V) {
 type LinkedQueue[V any] struct {
 	head *Node[V] // pseudo head
 	tail *Node[V] // tail
+	size int
+}
+
+func (q *LinkedQueue[V]) Size() int {
+	return q.size
 }
 
 func NewLinkedQueue[V any]() *LinkedQueue[V] {
@@ -33,7 +38,7 @@ func NewLinkedQueue[V any]() *LinkedQueue[V] {
 	h.next = t
 	t.prev = h
 
-	return &LinkedQueue[V]{head: h, tail: t}
+	return &LinkedQueue[V]{head: h, tail: t, size: 0}
 }
 
 func (q *LinkedQueue[V]) IsEmpty() bool {
@@ -47,6 +52,7 @@ func (q *LinkedQueue[V]) Enqueue(val V) {
 	newNode.prev = q.tail
 
 	q.tail = newNode
+	q.size++
 }
 
 func (q *LinkedQueue[V]) Dequeue() (val V) {
@@ -57,7 +63,6 @@ func (q *LinkedQueue[V]) Dequeue() (val V) {
 	// 摘除节点前，先暂存一下
 	val = q.head.next.val
 	// 重组关系
-
 	q.head.next = q.head.next.next
 	if q.head.next != nil { // end of queue
 		q.head.next.prev = q.head
@@ -65,5 +70,6 @@ func (q *LinkedQueue[V]) Dequeue() (val V) {
 		q.tail = q.head
 	}
 
+	q.size--
 	return val
 }
