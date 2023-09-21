@@ -5,25 +5,17 @@ import (
 	"testing"
 )
 
-type Int struct {
-	val int
-}
-
-func (i *Int) Key() int {
-	return i.val
-}
-
 func TestMinPQ(t *testing.T) {
-	maxQ := NewMinPQ[*Int]()
-	maxQ.Insert(&Int{val: 2})
-	maxQ.Insert(&Int{val: 3})
-	maxQ.Insert(&Int{val: 4})
-	maxQ.Insert(&Int{val: 3})
-	maxQ.Insert(&Int{val: 1})
+	maxQ := NewMinPQ[int, *Int]()
+	maxQ.Insert(&Int{k: 2})
+	maxQ.Insert(&Int{k: 3})
+	maxQ.Insert(&Int{k: 4})
+	maxQ.Insert(&Int{k: 3})
+	maxQ.Insert(&Int{k: 1})
 	fmt.Println(maxQ.a)
 
 	fmt.Println("show min")
-	for !maxQ.isEmpty() {
+	for !maxQ.IsEmpty() {
 		fmt.Println(maxQ.DelMin())
 	}
 

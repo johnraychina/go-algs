@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func createEdgeWeightedGraph() *EdgeWeightedGraph {
+func TestEdgeWeightedGraph(t *testing.T) {
 
 	//0-7  0.16
 	//2-3  0.17
@@ -44,13 +44,12 @@ func createEdgeWeightedGraph() *EdgeWeightedGraph {
 	for _, e := range edges {
 		g.AddEdge(e)
 	}
-	return g
-}
 
-func TestKruskalMST(t *testing.T) {
-	g := createEdgeWeightedGraph()
-	k := NewKruskalMST(g)
-	for !k.mst.IsEmpty() {
-		fmt.Println(k.mst.Dequeue())
+	fmt.Printf("V:%d, E:%d \n", g.V(), g.E())
+
+	adj := g.AdjOf(0)
+	fmt.Println("Adjacent vertices of 0 is:")
+	for _, e := range adj {
+		fmt.Println(e)
 	}
 }
