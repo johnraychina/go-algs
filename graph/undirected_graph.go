@@ -30,6 +30,7 @@ type Graph interface {
 	Degree(v int) int
 }
 
+// UndirectedGraph 无权重无向重图
 type UndirectedGraph struct {
 	Graph
 	v   int            // number of vertices
@@ -79,7 +80,7 @@ func (g *UndirectedGraph) E() int {
 	for _, m := range g.adj {
 		cnt += len(m)
 	}
-	return cnt
+	return cnt / 2
 }
 
 func (g *UndirectedGraph) Degree(v int) int {

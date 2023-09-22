@@ -1,5 +1,6 @@
 package graph
 
+// EdgeWeightedGraph 有权重无向图
 type EdgeWeightedGraph struct {
 	v   int             // number of vertices
 	adj []map[int]*Edge // adjacent vertices
@@ -41,7 +42,7 @@ func (g *EdgeWeightedGraph) E() int {
 	for _, m := range g.adj {
 		edgeCount += len(m)
 	}
-	return edgeCount
+	return edgeCount / 2
 }
 
 type Edge struct {
