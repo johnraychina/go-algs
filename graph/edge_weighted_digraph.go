@@ -45,7 +45,7 @@ func (g *EdgeWeightedDiGraph) E() int {
 
 type DirectedEdge struct {
 	v, w   int
-	weight float32
+	weight float64
 }
 
 func (e *DirectedEdge) From() int {
@@ -54,9 +54,9 @@ func (e *DirectedEdge) From() int {
 func (e *DirectedEdge) To() int {
 	return e.w
 }
-func (e *DirectedEdge) Weight() float32 {
+func (e *DirectedEdge) Weight() float64 {
 	return e.weight
 }
-func (e *DirectedEdge) Key() float32 {
+func (e *DirectedEdge) Key() float64 {
 	return e.weight
 }
