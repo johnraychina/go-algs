@@ -5,6 +5,8 @@ import (
 	"math"
 )
 
+// todo 探索检测正向环
+
 //Bellman-Ford shortest paths算法：
 //初始化：distTo[s]=0, distTo[v]=Max
 //迭代V次：
@@ -102,9 +104,9 @@ func NewEdgeWeightedDirectedCycle(g *EdgeWeightedDiGraph) *EdgeWeightedDirectedC
 	onStack := make([]bool, g.V())
 	//cycle := basic.NewStack[*DirectedEdge]()
 	c := &EdgeWeightedDirectedCycle{edgeTo: edgeTo, marked: marked, onStack: onStack}
-	for i := 0; i < g.V(); i++ {
-		if !marked[i] {
-			c.dfs(g, i)
+	for v := 0; v < g.V(); v++ {
+		if !c.marked[v] {
+			c.dfs(g, v)
 		}
 	}
 
@@ -113,6 +115,7 @@ func NewEdgeWeightedDirectedCycle(g *EdgeWeightedDiGraph) *EdgeWeightedDirectedC
 
 func (c *EdgeWeightedDirectedCycle) dfs(g *EdgeWeightedDiGraph, v int) {
 	c.onStack[v] = true
+	c.marked[v] = true
 
 	for w, e := range g.AdjOf(v) {
 		// short circuit if directed cycle found
