@@ -16,12 +16,12 @@ func (s *Student) Key() int {
 
 func TestInsert(t *testing.T) {
 
-	q := NewIndexMinPQ[int, *Student](5)
-	q.Insert(1, &Student{"Tom", 15})
-	q.Insert(2, &Student{"Read", 14})
-	q.Insert(3, &Student{"Jenny", 13})
-	q.Insert(4, &Student{"Kent", 16})
-	q.Insert(5, &Student{"Joey", 14})
+	q := NewIndexMinPQ[int](5)
+	q.Insert(1, 15)
+	q.Insert(2, 14)
+	q.Insert(3, 13)
+	q.Insert(4, 16)
+	q.Insert(5, 14)
 
 	// q.get
 	//for i := 1; i < 6; i++ {
