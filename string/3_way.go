@@ -54,3 +54,8 @@ func threeWaySort(a []string, lo, hi, d int) {
 func swap(a []string, x, y int) {
 	a[x], a[y] = a[y], a[x]
 }
+
+// LRS longest repeated substring
+func LRS(s string) {
+
+}
