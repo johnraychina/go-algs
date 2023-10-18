@@ -24,7 +24,7 @@ func LSDSort(a []string, W int) {
 		count := make([]int, R+1)
 
 		for _, s := range a {
-			count[s[d]+1]++ // 这里要注意
+			count[s[d]+1]++ // 这里要注意，往后挪一位置，这样count的含义就从对应字符“个数”变为“对应字符插入aux的起始位置”
 		}
 
 		// key-indexed counting
