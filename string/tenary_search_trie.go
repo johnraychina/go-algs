@@ -14,7 +14,7 @@ type TrieTST[V comparable] struct {
 	root *TNode[V]
 }
 
-func NewTrieTST[V comparable](radix int) *TrieTST[V] {
+func NewTrieTST[V comparable]() *TrieTST[V] {
 	trie := &TrieTST[V]{}
 	return trie
 }
@@ -34,16 +34,36 @@ func (t *TrieTST[V]) put(node *TNode[V], key string, v V, d int) *TNode[V] {
 		node.left = t.put(node.left, key, v, d)
 	} else if c > node.c {
 		node.right = t.put(node.right, key, v, d)
+	} else if d < len(key)-1 {
+		node.mid = t.put(node.mid, key, v, d+1)
 	} else {
-		if d < len(key)-1 {
-			node.mid = t.put(node.mid, key, v, d+1)
-		}
 		node.value = v // match c, down to the next
 	}
 
 	return node
 }
 
-func (t *TrieTST[V]) Get(key string) V {
-	panic("todo")
+func (t *TrieTST[V]) Get(key string) (v V) {
+	node := t.get(t.root, key, 0)
+	if node != nil {
+		return node.value
+	}
+	return v
+}
+
+func (t *TrieTST[V]) get(node *TNode[V], key string, d int) *TNode[V] {
+	if node == nil {
+		return nil
+	}
+
+	c := key[d]
+	if c < node.c {
+		return t.get(node.left, key, d)
+	} else if c > node.c {
+		return t.get(node.right, key, d)
+	} else if d < len(key)-1 {
+		return t.get(node.mid, key, d+1)
+	} else {
+		return node
+	}
 }
