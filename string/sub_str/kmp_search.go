@@ -105,3 +105,16 @@ func BuildDFA(pat string) *DFA {
 		states: states,
 	}
 }
+
+//Proposition. KMP substring search accesses no more than M + N chars to search for a pattern of length M in a text of length N.
+//Pf. Each pattern char accessed once when constructing the DFA;
+//each text char accessed once (in the worst case) when simulating the DFA.
+
+//Proposition. KMP constructs dfa[][] in time and space proportional to R M.
+//Larger alphabets. Improved version of KMP constructs nfa[] in time and
+//space proportional to M.
+
+// 命题：KMP字符串搜索，最多访问M+N这个字符
+// 证明：对于模式字符串，只在构建DFA时访问一次，对于目标文本，每个字符用DFA最多匹配一次。
+
+// 命题：KMP构造DFA的空间和时间与 R*M成正比.
