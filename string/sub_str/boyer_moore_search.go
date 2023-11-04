@@ -15,18 +15,36 @@ package sub_str
 //to guard against repetitive patterns.
 
 // 适用于重复模式不多的情况（容易触发skip）
-func BoyerMooreSearch(txt string, pat string) int {
 
+func BoyerMooreSearch(txt string, pat string) int {
+	N := len(txt)
 	M := len(pat)
+
 	// build skip table
 	right := make([]int, Radix)
 	for c := 0; c < Radix; c++ {
 		right[c] = -1
 	}
 	for j := 0; j < M; j++ {
-		right[pat[j]] = j
+		right[pat[j]] = j // character index
 	}
 
-	//todo
-	return -1
+	// 关键实现：内外两层循环for循环, 内层从右向左遍历匹配，使用skip记录不匹配时的滑动长度
+	var skip int
+	for i := 0; i < N-M; i += skip {
+		skip = 0
+		for j := M - 1; j >= 0; j-- {
+			if txt[i+j] != pat[j] {
+				skip = j - right[txt[i+j]] // 在pattern中没有对应的txt字符则skip = j+1，如果有则skip=j-right[txt[i+j]]
+				if skip < -1 {             //pattern中的字符在txt中没有，移动一格
+					skip = 1
+				}
+			}
+		}
+		if skip == 0 { // skip = j - j
+			return i // 返回匹配位置
+		}
+	}
+
+	return N // 表示匹配到最后也没有
 }
