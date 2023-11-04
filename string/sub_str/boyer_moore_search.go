@@ -36,9 +36,10 @@ func BoyerMooreSearch(txt string, pat string) int {
 		for j := M - 1; j >= 0; j-- {
 			if txt[i+j] != pat[j] {
 				skip = j - right[txt[i+j]] // 在pattern中没有对应的txt字符则skip = j+1，如果有则skip=j-right[txt[i+j]]
-				if skip < -1 {             //pattern中的字符在txt中没有，移动一格
+				if skip < 1 {              //无法使i变大，则skip=1, i+=1
 					skip = 1
 				}
+				break
 			}
 		}
 		if skip == 0 { // skip = j - j
