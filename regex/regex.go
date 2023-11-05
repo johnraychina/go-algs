@@ -48,7 +48,7 @@ func Patch(l *Ptrlist, s *State) {
 }
 
 func post2nfa(postfix rune) *State {
-
+	panic("todo")
 }
 
 //State* post2nfa(char *postfix) {

@@ -18,8 +18,8 @@ func (s *Stack[V]) Pop() (v V, err error) {
 	if s.IsEmpty() {
 		return v, errors.New("empty stack")
 	}
-	v = s.s[0]
-	s.s = s.s[1:]
+	v = s.s[s.Size()-1]
+	s.s = s.s[:s.Size()-1]
 	return v, nil
 }
 
