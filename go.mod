@@ -1,5 +1,5 @@
 module go-algs
 
-go 1.21.0
+go 1.26.2
 
-require golang.org/x/time v0.9.0
+require golang.org/x/time v0.15.0
