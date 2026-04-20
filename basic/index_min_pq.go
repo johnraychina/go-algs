@@ -22,7 +22,7 @@ func NewIndexMinPQ[K cmp.Ordered](maxN int) *IndexMinPQ[K] {
 		a:    make([]K, maxN+1),
 		qp:   make([]int, maxN+1),
 	}
-	for i, _ := range q.qp {
+	for i := range q.qp {
 		q.qp[i] = -1
 	}
 	return q
@@ -40,7 +40,7 @@ func (q *IndexMinPQ[K]) Insert(index int, k K) {
 func (q *IndexMinPQ[K]) Get(idx int) K {
 	q.validateIndex(idx)
 	if !q.Contains(idx) {
-		panic(fmt.Sprintf("index is not in the priority queue"))
+		panic(fmt.Errorf("index is not in the priority queue"))
 	} else {
 		return q.a[idx]
 	}
@@ -130,8 +130,8 @@ func (q *IndexMinPQ[K]) validateIndex(idx int) {
 	if idx < 0 {
 		panic(fmt.Sprintf("index is negative:%d", idx))
 	}
-	if idx >= q.maxN {
-		panic(fmt.Sprintf("index >= capacity: %d", idx))
+	if idx > q.maxN {
+		panic(fmt.Sprintf("index > capacity: %d", idx))
 	}
 }
 
@@ -148,7 +148,7 @@ func (q *IndexMinPQ[K]) DecreaseKey(idx int, key K) {
 	}
 
 	//update weight
-	q.a[idx] = q.a[idx]
+	q.a[idx] = key
 	// swim up
 	q.swim(q.qp[idx])
 }

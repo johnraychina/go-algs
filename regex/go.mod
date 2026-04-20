@@ -1,6 +1,6 @@
 module regex
 
-go 1.21.0
+go 1.26.2
 
 replace go-algs/basic => ../basic
 

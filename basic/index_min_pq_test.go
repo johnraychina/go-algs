@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -30,7 +29,10 @@ func TestInsert(t *testing.T) {
 
 	// get min
 	for !q.IsEmpty() {
-		minIdx := q.DelMin()
-		fmt.Println(minIdx)
+		minIdx := q.MinIndex()
+
+		t.Logf("min index: %d, key: %d", minIdx, q.Get(minIdx))
+
+		q.DelMin()
 	}
 }
