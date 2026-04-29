@@ -26,40 +26,36 @@ type Node[T any] struct {
 }
 
 type SkipList[T any] struct {
-	head     *Node[T] // 哨兵节点，减少空指针判断，不存实际数据。
-	p        float64  // level升级概率, 1/2 相当于二叉树，1/4 相当于四叉树
-	maxLevel int      // 最大层数，预估: logk(max node), k=1/p
+	head  *Node[T] // 哨兵节点，减少空指针判断，不存实际数据。
+	p     float64  // level升级概率, 1/2 相当于二叉树，1/4 相当于四叉树
+	level int      // 当前最大层数，预估: logk(max node), k=1/p
 }
 
+const MaxLevel = 31 // 最大层, zero based
+
 type SkipListOption struct {
-	MaxLevel int
-	P        float64
+	P float64
 }
 type Option func(*SkipListOption)
 
 func NewSkipList[T any](opts ...Option) *SkipList[T] {
 	option := &SkipListOption{
-		MaxLevel: 32,
-		P:        2,
+		P: 0.5,
 	}
 
 	for _, opt := range opts {
 		opt(option)
 	}
 
-	if !(option.MaxLevel > 0 && option.MaxLevel < 1024) {
-		panic("max level must be greater than 1024")
-	}
-
 	if !(option.P > 0 && option.P < 1) {
 		panic("P must be between 0 and 1")
 	}
 
-	node := &Node[T]{next: make([]*Node[T], option.MaxLevel+1)}
+	node := &Node[T]{next: make([]*Node[T], MaxLevel+1)} // zero based
 	return &SkipList[T]{
-		maxLevel: option.MaxLevel,
-		p:        option.P,
-		head:     node,
+		level: 0,
+		p:     option.P,
+		head:  node,
 	}
 }
 
@@ -72,15 +68,15 @@ func NewSkipList[T any](opts ...Option) *SkipList[T] {
 func (sl *SkipList[T]) Search(target int) (ok bool, value T) {
 	// 永远通过“前驱”来操作结构，而不是直接命中节点
 	cur := sl.head
-	maxLevel := sl.maxLevel
+	level := sl.level
 
 	// to exclude out of range nodes,
 	// move the cur pointer to the largest key that is less or equal to the target
 	// top -> down
-	for level := maxLevel; level >= 0; level-- {
+	for l := level; l >= 0; l-- {
 		// left -> right
-		for cur.next[level] != nil && cur.next[level].key < target {
-			cur = cur.next[level]
+		for cur.next[l] != nil && cur.next[l].key < target {
+			cur = cur.next[l]
 		}
 	}
 
@@ -97,25 +93,39 @@ func (sl *SkipList[T]) Search(target int) (ok bool, value T) {
 func (sl *SkipList[T]) Insert(key int, value T) {
 
 	// 找到每层前驱节点
-	// find each prev node of the key in each level
+	// find each prev node of the key in each l
 	cur := sl.head
-	maxLevel := sl.maxLevel
-	update := make([]*Node[T], maxLevel+1)
+	curMaxLevel := sl.level
+	update := make([]*Node[T], MaxLevel+1)
 
-	for level := maxLevel; level >= 0; level-- {
-		for cur.next[level] != nil && cur.next[level].key < key {
-			fmt.Printf("level: %d, cur: %d, next:%d \n", level, cur.key, cur.next[level].key)
-			cur = cur.next[level]
+	for l := curMaxLevel; l >= 0; l-- {
+		for cur.next[l] != nil && cur.next[l].key < key {
+			cur = cur.next[l]
 		}
 
-		update[level] = cur
+		update[l] = cur
 	}
 
-	// 确定层数: 随机数<P，则升一层
-	// generate random number for each level
+	// 已存在，则覆盖 fixed
+	// override the value if the key already exists
+	if cur.next[0] != nil && cur.next[0].key == key {
+		cur.next[0].value = value
+	}
+
+	// 确定新节点的层数: 随机数<P，则升一层
+	// generate random number for each level of the new node
+	// promote level if less than p
 	level := 0
-	for rand.Float64() < sl.p && level < maxLevel {
+	for rand.Float64() < sl.p && level < MaxLevel {
 		level++
+	}
+
+	// 新节点层数超过当前最大层，则扩层，用head作为前驱节点
+	if level > sl.level {
+		for i := sl.level + 1; i <= level; i++ {
+			update[i] = sl.head
+		}
+		sl.level = level
 	}
 
 	// 新节点
@@ -132,4 +142,29 @@ func (sl *SkipList[T]) Insert(key int, value T) {
 		newNode.next[i] = update[i].next[i]
 		update[i].next[i] = newNode
 	}
+}
+
+// Print show skip list nodes in a horizontal way
+func (sl *SkipList[T]) Print() {
+
+	// iterate level 0 node
+	for cur := sl.head; cur != nil; cur = cur.next[0] {
+
+		// iterate each level
+		fmt.Printf("[%d]", cur.key)
+		for i := range cur.next {
+			if cur.next[i] == nil {
+				fmt.Printf("%s ", "-")
+			} else {
+				fmt.Printf("%d ", cur.next[i].key)
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func (sl *SkipList[T]) Range(from, to int) []T {
+	//todo
+	var r []T
+	return r
 }
