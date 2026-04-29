@@ -49,6 +49,7 @@ func (t *HashTable[K, V]) Put(k K, v V) {
 	if node == nil {
 		t.tab[idx] = &HashNode[K, V]{key: k, val: v}
 		t.size++
+		t.ensureCapacity()
 		return
 	}
 
@@ -61,6 +62,7 @@ func (t *HashTable[K, V]) Put(k K, v V) {
 		} else { // not found
 			node.next = &HashNode[K, V]{key: k, val: v}
 			t.size++
+			t.ensureCapacity()
 			return
 		}
 	}
@@ -99,7 +101,35 @@ func (t *HashTable[K, V]) Size() uint {
 }
 
 func (t *HashTable[K, V]) ensureCapacity() {
-	panic("todo")
+
+	tabSize := uint(len(t.tab))
+	if t.size <= tabSize*3/4 {
+		return
+	}
+
+	newSize := t.size * 2
+	newTab := make([]*HashNode[K, V], newSize)
+
+	// iterate through the old table
+	for _, node := range t.tab {
+		for node != nil {
+
+			next := node.next
+
+			// new index of the node
+			hc := node.key.HashCode()
+			newIdx := hc % newSize
+
+			// insert at the head of the new table
+			// link the node to the new table
+			node.next = newTab[newIdx]
+			newTab[newIdx] = node
+
+			node = next
+		}
+	}
+
+	t.tab = newTab
 }
 
 func (t *HashTable[K, V]) Keys() (keys []K) {
